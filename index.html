@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>에너지 손실 모니터링 시스템</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .header {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            width: 100%;
+            margin-top: 100px; /* Adjust margin to account for the header */
+        }
+        
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: absolute;
+            left: calc(50% - 450px); /* 에너지 손실 그래프와 사용 시간 그래프 바로 옆에 위치하게 조정 */
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+
+        .sidebar button {
+            padding: 10px 20px;
+            margin-bottom: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .sidebar button:hover {
+            background-color: #0056b3;
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+            margin-left: 150px; /* Adjust to provide space for the sidebar */
+        }
+
+        .chart-container {
+            position: relative;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center; /* 제목을 중앙 정렬 */
+        }
+
+        canvas {
+            background-color: white;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>에너지 손실 모니터링 시스템</h1>
+    </div>
+
+    <div class="sidebar">
+        <button>차트</button>
+        <button>그래프</button>
+        <button>통계</button>
+        <button>모니터링</button>
+        <button>로그아웃</button>
+    </div>
+
+    <div class="main-content">
+        <div class="charts-container">
+            <div class="chart-container">
+                <h2>에너지 손실</h2>
+                <canvas id="lineChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h2>냉난방 효율성</h2>
+                <canvas id="barChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h2>사용 시간</h2>
+                <canvas id="pieChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h2>에너지 소모량</h2>
+                <canvas id="doughnutChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h2>제품 비교</h2>
+                <canvas id="radarChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h2>에너지 사용 효율</h2>
+                <canvas id="scatterChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Line Chart
+        const lineCtx = document.getElementById('lineChart').getContext('2d');
+        const lineChart = new Chart(lineCtx, {
+            type: 'line',
+            data: {
+                labels: ['장치A', '장치B', '장치C', '장치D', '장치E', '장치F'],
+                datasets: [{
+                    label: 'Sales',
+                    data: [65, 59, 80, 81, 56, 55],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+
+        // Bar Chart
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        const barChart = new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: ['장치A', '장치B', '장치C', '장치D', '장치E', '장치F'],
+                datasets: [{
+                    label: 'Revenue',
+                    data: [65, 59, 80, 81, 56, 55],
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+
+        // Radar Chart
+        const radarCtx = document.getElementById('radarChart').getContext('2d');
+        const radarChart = new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['속도', '정밀도', '효율성', '내구성', '가격'],
+                datasets: [{
+                    label: '제품 A',
+                    data: Array.from({length: 5}, () => getRandomInt(50, 100)), // 랜덤 값으로 변경
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 2
+                }, {
+                    label: '제품 B',
+                    data: Array.from({length: 5}, () => getRandomInt(50, 100)), // 랜덤 값으로 변경
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+
+        // Scatter Chart
+        const scatterCtx = document.getElementById('scatterChart').getContext('2d');
+        const scatterChart = new Chart(scatterCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: '산점도 데이터',
+                    data: Array.from({length: 5}, () => ({ x: getRandomInt(10, 30), y: getRandomInt(20, 40) })), // 랜덤 값으로 변경
+                    backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+
+        // Pie Chart
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        const pieChart = new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: ['장치A', '장치B', '장치C'],
+                datasets: [{
+                    data: [300, 50, 100],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+
+        // Doughnut Chart
+        const doughnutCtx = document.getElementById('doughnutChart').getContext('2d');
+        const doughnutChart = new Chart(doughnutCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['장치A', '장치B', '장치C'],
+                datasets: [{
+                    data: [300, 50, 100],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+
+        function updateCharts() {
+            // Update Line Chart
+            lineChart.data.datasets[0].data = lineChart.data.datasets[0].data.map(() => getRandomInt(50, 100));
+            lineChart.update();
+
+            // Update Bar Chart
+            barChart.data.datasets[0].data = barChart.data.datasets[0].data.map(() => getRandomInt(50, 100));
+            barChart.update();
+
+            // Update Pie Chart
+            pieChart.data.datasets[0].data = pieChart.data.datasets[0].data.map(() => getRandomInt(50, 300));
+            pieChart.update();
+
+            // Update Doughnut Chart
+            doughnutChart.data.datasets[0].data = doughnutChart.data.datasets[0].data.map(() => getRandomInt(50, 300));
+            doughnutChart.update();
+
+            // Update Scatter Chart
+            scatterChart.data.datasets[0].data = Array.from({length: 5}, () => ({ x: getRandomInt(10, 30), y: getRandomInt(20, 40) }));
+            scatterChart.update();
+        }
+
+        // Update charts every 2 seconds
+        setInterval(updateCharts, 2500);
+    </script>
+
+</body>
+</html>
